@@ -1,0 +1,77 @@
+{
+  "updated": "2026-09-04",
+
+  "thesis": "Un incrémental actif meurt quand la seule variable qui bouge est un multiplicateur. **OVERDRAFT fait de chaque coup une décision dont l'issue reste incertaine** — et le prouve en essayant de se contredire, 3 600 parties à la fois.",
+
+  "wedge": "Bills Must Be Paid tient 96 % d'avis positifs sur 3 724 avis, ce qui règle la question de la prémisse : casser des tirelires pour payer ses factures, ça marche. Ce que la presse et les joueurs lui reprochent est toujours la même chose sous quatre formes — ça tourne en rond après quatre heures, la progression pré-prestige traîne, les mini-jeux de pari divisent, la fin de partie s'étire. Les quatre disent qu'aucune décision n'a d'issue incertaine : chaque run est la précédente en plus gros. La place est libre non pas parce que personne n'a pensé à un incrémental actif de casse, mais parce que réparer ce défaut-là demande de traiter l'équilibrage comme une mesure et pas comme une intuition — c'est-à-dire de construire l'instrument avant le jeu.",
+
+  "surfaces": [
+    {
+      "name": "La run",
+      "state": "live",
+      "stateLabel": "jouable de bout en bout",
+      "claim": "On lance npm run dev, on casse jusqu'à la faillite : coût de coup choisi, échéancier à trois échéances, saisies, tirage de perks, écran de fin qui chiffre le legacy.",
+      "evidence": "Boucle pilotée depuis la console du navigateur : 80 coups, 3 tirelires cassées, 136 en poche. 17 tests au vert, dont deux contrôles négatifs.",
+      "reserve": "Aucune session de jeu humaine au-delà de quelques minutes. Ni son, ni tactile, ni manette — et le game feel n'a reçu aucune passe dédiée."
+    },
+    {
+      "name": "L'instrument de mesure",
+      "state": "live",
+      "stateLabel": "opérationnel, et il mord",
+      "claim": "npm run sim joue 3 600 parties sans rendu et compare trois politiques de frappe sur quatre marteaux. Il existe pour pouvoir infirmer le design.",
+      "evidence": "Il a démoli quatre versions successives du compromis central, dont la sienne : les moyennes sur 60 runs ne mesuraient que la chance d'avoir croisé un jackpot.",
+      "reserve": "Le bot est glouton coup par coup : il ne planifie ni la fenêtre d'une facture ni la fuite d'un jackpot. Il donne une ligne de base, pas un plafond de compétence — il ne dit donc rien de la marge laissée à un humain."
+    },
+    {
+      "name": "Le méta entre les runs",
+      "state": "next",
+      "stateLabel": "le prochain palier",
+      "claim": "Le legacy achète des améliorations permanentes : la quatrième run part visiblement plus forte que la première.",
+      "reserve": "Rien n'existe aujourd'hui : le legacy s'accumule et s'affiche, et n'achète rien. C'est le seul endroit où l'original est actuellement plus riche que nous."
+    },
+    {
+      "name": "Le score vérifiable",
+      "state": "later",
+      "stateLabel": "acquis techniquement, pas construit",
+      "claim": "Un classement dont chaque score se rejoue : une partie est entièrement décrite par (graine, suite d'entrées), donc un serveur peut la rejouer au lieu de croire le client.",
+      "reserve": "Aucun service, aucun stockage, aucun coût estimé. Le déterminisme rend la chose possible ; il ne la rend pas faite."
+    }
+  ],
+
+  "flywheel": [
+    { "step": "instrument", "text": "Le noyau déterministe rend une campagne de 3 600 parties aussi banale qu'un test." },
+    { "step": "réfutation", "text": "Chaque affirmation d'équilibrage est attaquée avant d'être écrite — quatre versions du compromis central sont mortes ainsi." },
+    { "step": "confiance", "text": "Ce qui survit peut être annoncé avec son chiffre, et un test le tient : le jour où l'équilibrage bouge, la doc échoue avec le code." },
+    { "step": "vitesse", "text": "Un changement d'équilibrage se juge en six minutes au lieu d'une soirée de jeu — donc on en tente davantage." }
+  ],
+
+  "proof": [
+    {
+      "claim": "Aucune politique de frappe ne domine : le bon coup dépend du marteau et de la situation.",
+      "state": "proven",
+      "note": "Campagne de 3 600 runs, médianes : le tap gagne sur le marteau de poche, la charge sur le ciseau et la masse, la batte est un pile ou face. Contrôle négatif dans tests/sim.test.ts : le test échoue si un marteau gagne sur les deux axes du compromis — il a effectivement fait échouer la masse et la batte."
+    },
+    {
+      "claim": "La simulation est déterministe et rejouable à partir de (graine, entrées).",
+      "state": "proven",
+      "note": "tests/sim.test.ts, « rejoue à l'identique » plus son contrôle négatif « diverge dès que la visée change ». Le premier contrôle négatif était faux et validait une simulation ignorant la visée : réécrit pour que la visée décalée touche vraiment autre chose."
+    },
+    {
+      "claim": "Le tirage de perks donne à deux parties une différence qui n'est pas qu'un multiplicateur.",
+      "state": "directional",
+      "note": "On sait de quel côté ça penche — sans perks, la run mourait toujours à la même facture, et la variance de durée a explosé après leur ajout. On ne sait pas de combien : aucune mesure de diversité de builds sur les onze perks, ni de taux de choix par perk."
+    },
+    {
+      "claim": "La boucle tient au-delà de la quatrième heure — le reproche adressé à l'original.",
+      "state": "unproven",
+      "note": "C'est l'affirmation centrale du projet et rien ne la tient. Il y manque le méta entre les runs (S2), et surtout des sessions humaines longues : aucun bot ne peut mesurer l'ennui. Ce qu'il faudrait : cinq personnes, quatre heures chacune, et le compte des runs abandonnées en cours."
+    },
+    {
+      "claim": "Le jeu est agréable à jouer.",
+      "state": "unproven",
+      "note": "Aucune passe de game feel, aucun son, aucun retour de joueur. Le rendu tient debout et c'est tout ce qu'on peut en dire aujourd'hui."
+    }
+  ],
+
+  "moat": "Rien qu'un concurrent ne puisse rattraper en réécrivant le code — et il faut l'écrire plutôt que d'inventer une barrière. Ce jeu est un projet solo dont les cinq écarts de design sont publiés dans docs/DESIGN.md ; ils se copient. La seule avance réelle est de rythme : l'instrument de mesure fait qu'un changement d'équilibrage se juge en six minutes, là où un studio qui règle son jeu à la main y passe une soirée. C'est une avance de vitesse d'itération, pas une position défendable."
+}

@@ -1,0 +1,91 @@
+{
+  "epic": "OVERDRAFT — un incrémental actif dont la boucle tient au-delà de la quatrième heure.",
+  "goal": "Reprendre la prémisse de Bills Must Be Paid en réparant ce que la critique lui reproche : une décision réelle à chaque coup, une escalade à l'intérieur de la run, et un équilibrage mesuré plutôt qu'affirmé.",
+  "updated": "2026-09-04",
+
+  "links": [
+    {
+      "label": "Le jeu",
+      "url": "http://localhost:5173",
+      "note": "npm run dev — la run complète : casse, factures, perks, faillite."
+    },
+    {
+      "label": "Thèse de design",
+      "url": "../docs/DESIGN.md",
+      "note": "Les cinq écarts avec l'original, et l'alternative écartée pour chacun."
+    },
+    {
+      "label": "Mesures d'équilibrage",
+      "url": "../docs/balance-baseline.txt",
+      "note": "Campagne de 3 600 runs simulées : médianes par marteau et par politique."
+    }
+  ],
+
+  "sprints": [
+    {
+      "id": "S1",
+      "start": "2026-09-04",
+      "end": "2026-09-04",
+      "title": "La run se joue",
+      "goal": "npm run dev, et on casse des tirelires jusqu'à la faillite : stamina à coût choisi, échéancier, saisies, tirage de perks, écran de fin. En parallèle, npm run sim doit pouvoir infirmer le design.",
+      "tasks": [
+        { "id": "T1.1", "title": "Bastion du dépôt (structure, CI, docs, cockpit)", "status": "done" },
+        { "id": "T1.2", "title": "Noyau de simulation déterministe (sfc32, pas fixe 1/120)", "status": "done" },
+        { "id": "T1.3", "title": "Coup à coût choisi : charge, rayon, décroissance, critique", "status": "done" },
+        { "id": "T1.4", "title": "Six types de tirelires, apparition en grappes, pièges", "status": "done" },
+        { "id": "T1.5", "title": "Échéancier visible, saisies, fin de run à trois saisies", "status": "done" },
+        { "id": "T1.6", "title": "Tirage de trois perks à chaque facture payée", "status": "done" },
+        { "id": "T1.7", "title": "Rendu three.js : tirelires, éclats, recul caméra, anneau de charge", "status": "done" },
+        { "id": "T1.8", "title": "HUD : main, échéancier cliquable, perks, rendement de faillite", "status": "done" },
+        { "id": "T1.9", "title": "Simulateur headless + bot à trois politiques + balayage", "status": "done" },
+        { "id": "T1.10", "title": "17 tests dont les contrôles négatifs (déterminisme, domination)", "status": "done" },
+        { "id": "T1.11", "title": "Équilibrer les quatre marteaux entre eux (facteur ~2 aujourd'hui)", "status": "todo" }
+      ]
+    },
+    {
+      "id": "S2",
+      "start": "2026-09-05",
+      "end": "2026-09-19",
+      "title": "Le méta rend le legacy utile",
+      "goal": "Après trois runs, ouvrir l'atelier et dépenser le legacy : lancer une quatrième run visiblement plus forte que la première, et le voir sur le chiffre de factures payées.",
+      "tasks": [
+        { "id": "T2.1", "title": "Arbre de legacy persistant (bagues et bracelets), appliqué au départ de run", "status": "todo" },
+        { "id": "T2.2", "title": "Déblocage des marteaux par le legacy plutôt que tous offerts", "status": "todo" },
+        { "id": "T2.3", "title": "Mesurer la courbe de progression sur 5 runs enchaînées, bot compris", "status": "todo" },
+        { "id": "T2.4", "title": "Écran d'atelier entre deux runs", "status": "todo" }
+      ]
+    },
+    {
+      "id": "S3",
+      "start": "2026-09-19",
+      "end": "2026-10-03",
+      "title": "Le jeu se sent",
+      "goal": "Jouer une run avec le son coupé puis allumé, et entendre la différence : chaque casse, chaque saisie, chaque charge pleine a son retour.",
+      "tasks": [
+        { "id": "T3.1", "title": "Son : impact, casse, charge, saisie, jackpot (WebAudio, sans dépendance)", "status": "todo" },
+        { "id": "T3.2", "title": "Passe de game feel : courbes de charge, hit stop, arrivée des éclats", "status": "todo" },
+        { "id": "T3.3", "title": "Tactile et manette", "status": "todo" },
+        { "id": "T3.4", "title": "Rejeu d'une run à partir de (graine, entrées) — l'outil de bug", "status": "todo" }
+      ]
+    }
+  ],
+
+  "backlog": [
+    {
+      "title": "Modificateurs de run tirés au départ",
+      "note": "La variance entre parties ne doit pas venir que des perks : un tapis « tout en chênes » ou « pièges doublés » change ce qu'on optimise dès la première seconde."
+    },
+    {
+      "title": "Score en ligne vérifié côté serveur",
+      "note": "Le noyau déterministe rend la vérification possible : (graine, entrées) rejoués donnent le score. C'est déjà acquis techniquement, il ne manque que le service."
+    },
+    {
+      "title": "Enveloppe Tauri pour une sortie bureau",
+      "note": "Ni le cœur ni le rendu ne changent. À décider seulement si la sortie Steam devient un objectif."
+    },
+    {
+      "title": "Bot planificateur plutôt que glouton",
+      "note": "Le bot actuel ne voit pas la fenêtre d'une facture ni la fuite d'un jackpot. Un bot qui planifie donnerait un vrai plafond de compétence, donc une mesure de la marge laissée au joueur."
+    }
+  ]
+}

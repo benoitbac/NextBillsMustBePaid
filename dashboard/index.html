@@ -1,0 +1,326 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NextBillsMustBePaid — cockpit</title>
+
+<style>
+  /*
+    Same instrument as NextCoreWatch: one dark world, monospace throughout, and
+    colour used only where it means something. A cockpit that changes typeface
+    between projects is a cockpit you have to re-learn every time you open it.
+  */
+  :root {
+    --bg: #09090b;
+    --panel: rgba(0, 0, 0, .4);
+    --panel-deep: rgba(0, 0, 0, .35);
+    --line-800: #27272a;
+    --line-700: #3f3f46;
+    --zinc-100: #f4f4f5;
+    --zinc-200: #e4e4e7;
+    --zinc-300: #d4d4d8;
+    --zinc-400: #a1a1aa;
+    --zinc-500: #71717a;
+    --zinc-600: #52525b;
+    --emerald: #34d399;
+    --emerald-dim: #10b981;
+    --amber: #fbbf24;
+    --amber-dim: #d97706;
+    --sky: #38bdf8;
+    --rose: #fb7185;
+    --violet: #a78bfa;
+    --mono: ui-monospace, "Cascadia Mono", "SF Mono", "Segoe UI Mono", Consolas, monospace;
+  }
+
+  html { color-scheme: dark; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--zinc-100);
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  * { box-sizing: border-box; }
+
+  a { color: var(--sky); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  a:focus-visible { outline: 2px solid var(--sky); outline-offset: 2px; border-radius: 3px; }
+  code, .k { font-family: var(--mono); color: var(--amber); font-size: .95em; }
+
+  /* ---- header ---------------------------------------------------- */
+  header {
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 12px;
+    padding: 14px 24px; border-bottom: 1px solid var(--line-800);
+    position: sticky; top: 0; background: var(--bg); z-index: 5;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+  .brand h1 { font-size: 15px; font-weight: 600; letter-spacing: -.01em; margin: 0; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--emerald-dim); flex: 0 0 auto; }
+  .hstats { display: flex; align-items: center; gap: 20px; font-size: 11px; flex-wrap: wrap; }
+  .hstats span.k { color: var(--zinc-400); }
+  .hstats b { font-weight: 700; color: var(--zinc-100); font-variant-numeric: tabular-nums; }
+
+  /* Les liens vivent dans l'en-tête collant, pas dans une section qu'il faut
+     aller chercher : le cas d'usage est « j'ai changé d'onglet et j'ai perdu la
+     page », donc la réponse doit être visible sans défiler. */
+  .links { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .links a {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 10.5px; font-weight: 700; letter-spacing: .02em;
+    color: var(--zinc-300); text-decoration: none;
+    border: 1px solid var(--line-800); border-radius: 5px;
+    padding: 3px 8px; background: var(--panel-deep); white-space: nowrap;
+  }
+  .links a:hover { color: var(--sky); border-color: rgba(56, 189, 248, .4); text-decoration: none; }
+  .links a::before { content: "↗"; color: var(--sky); font-weight: 400; }
+
+  main { padding: 24px; display: flex; flex-direction: column; gap: 24px; max-width: 1400px; margin: 0 auto; }
+
+  section {
+    border: 1px solid var(--line-800); border-radius: 8px;
+    background: var(--panel); padding: 20px;
+  }
+  section.thesis {
+    border-color: rgba(52, 211, 153, .25);
+    background: linear-gradient(to bottom right, rgba(6, 78, 59, .18), rgba(0, 0, 0, .4) 60%, rgba(30, 41, 59, .2));
+  }
+  section.vision {
+    border-color: rgba(167, 139, 250, .28);
+    background: linear-gradient(to bottom right, rgba(76, 29, 149, .20), rgba(0, 0, 0, .4) 55%, rgba(12, 74, 110, .18));
+  }
+
+  .shead { display: flex; align-items: baseline; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
+  .shead h2 { font-size: 13px; font-weight: 600; letter-spacing: -.01em; margin: 0; }
+  .shead .note { font-size: 10.5px; color: var(--zinc-400); }
+  .lede { font-size: 12px; color: var(--zinc-300); margin: 0 0 14px; max-width: 92ch; }
+  .lede:last-child { margin-bottom: 0; }
+
+  .rule {
+    border-left: 2px solid var(--emerald-dim);
+    padding: 4px 0 4px 12px; margin: 0 0 14px;
+    color: var(--zinc-200); font-size: 12px; max-width: 92ch;
+  }
+
+  /* ---- KPI row ---------------------------------------------------- */
+  .kpis { display: flex; flex-wrap: wrap; gap: 10px; }
+  .kpi {
+    border: 1px solid var(--line-800); border-radius: 6px;
+    background: var(--panel-deep); padding: 10px 14px; min-width: 120px;
+  }
+  .kpi__v { font-size: 18px; font-weight: 700; color: var(--emerald); font-variant-numeric: tabular-nums; line-height: 1.15; }
+  .kpi__l { font-size: 10px; color: var(--zinc-400); text-transform: uppercase; letter-spacing: .09em; margin-top: 3px; }
+
+  /* ---- charts ----------------------------------------------------- */
+  .scroller { overflow-x: auto; }
+  .scroller svg { display: block; }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 10px; font-size: 10.5px; color: var(--zinc-400); }
+  .chip { display: inline-flex; align-items: center; gap: 6px; }
+  .swatch { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+
+  .split { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 20px; align-items: start; }
+  @media (max-width: 940px) { .split { grid-template-columns: 1fr; } }
+
+  /* ---- journal ---------------------------------------------------- */
+  .entry { border-top: 1px dashed var(--line-800); padding: 14px 0; }
+  .entry:first-child { border-top: 0; padding-top: 0; }
+  .entry__head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
+  .entry__date { font-size: 10px; color: var(--zinc-500); letter-spacing: .06em; }
+  .entry__title { font-size: 12px; font-weight: 700; color: var(--zinc-100); }
+
+  .item { display: grid; grid-template-columns: 62px 1fr; gap: 10px; padding: 4px 0; font-size: 11.5px; color: var(--zinc-300); }
+  .item .tag {
+    font-size: 10px; font-weight: 700; color: var(--zinc-500);
+    border: 1px solid var(--line-800); border-radius: 4px;
+    padding: 0 4px; text-align: center; align-self: start; white-space: nowrap;
+  }
+  .item.done .tag { color: var(--emerald); border-color: rgba(52, 211, 153, .35); }
+  .item.doing .tag { color: var(--amber); border-color: rgba(251, 191, 36, .35); }
+  .item.todo .tag { color: var(--sky); border-color: rgba(56, 189, 248, .3); }
+  .item.blocked .tag { color: var(--rose); border-color: rgba(251, 113, 133, .35); }
+
+  ul.plain { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+  ul.plain li { font-size: 11.5px; color: var(--zinc-300); border-left: 2px solid var(--line-700); padding-left: 10px; }
+  ul.plain li b { color: var(--zinc-100); }
+  .blocked { display: block; color: var(--rose); font-size: 10.5px; margin-top: 3px; }
+
+  /* ---- system map ------------------------------------------------- */
+  .layer { margin-bottom: 18px; }
+  .layer:last-child { margin-bottom: 0; }
+  .layer__name { font-size: 11px; font-weight: 700; color: var(--amber); text-transform: uppercase; letter-spacing: .09em; margin-bottom: 8px; }
+  .layer__name span { color: var(--zinc-500); font-weight: 400; text-transform: none; letter-spacing: 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; }
+  .card { border: 1px solid var(--line-800); border-radius: 6px; background: var(--panel-deep); padding: 12px; }
+  .card__title { font-size: 12px; font-weight: 700; color: var(--zinc-100); }
+  .card__path { font-size: 10px; color: var(--zinc-500); margin: 2px 0 6px; word-break: break-all; }
+  .card__role { font-size: 11px; color: var(--zinc-300); }
+  .card__ports { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
+  .port { font-size: 9.5px; color: var(--violet); border: 1px solid rgba(167, 139, 250, .25); border-radius: 4px; padding: 0 5px; }
+
+  .edges { display: flex; flex-direction: column; gap: 4px; font-size: 11px; color: var(--zinc-400); margin-top: 14px; padding-top: 14px; border-top: 1px dashed var(--line-800); }
+  .edges b { color: var(--zinc-200); }
+  .arrow { color: var(--emerald); }
+
+  /* ---- vision ----------------------------------------------------- */
+  .thesis-line {
+    font-size: 15px; line-height: 1.45; color: var(--zinc-100);
+    max-width: 60ch; margin: 0 0 14px; font-weight: 600; letter-spacing: -.01em;
+  }
+  .thesis-line em { color: var(--violet); font-style: normal; }
+
+  .surfaces { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 10px; }
+  .surf { border: 1px solid var(--line-800); border-radius: 6px; background: var(--panel-deep); padding: 12px; display: flex; flex-direction: column; gap: 7px; }
+  .surf__top { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+  .surf__name { font-size: 12.5px; font-weight: 700; color: var(--zinc-100); }
+  .surf__state { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .09em; border: 1px solid currentColor; border-radius: 4px; padding: 0 5px; white-space: nowrap; }
+  .surf__state[data-s="live"] { color: var(--emerald); }
+  .surf__state[data-s="next"] { color: var(--amber); }
+  .surf__state[data-s="later"] { color: var(--sky); }
+  .surf__claim { font-size: 11.5px; color: var(--zinc-200); }
+  .surf__evidence { font-size: 10.5px; color: var(--emerald); border-left: 2px solid rgba(52, 211, 153, .4); padding-left: 8px; }
+  .surf__reserve { font-size: 10.5px; color: var(--zinc-400); border-left: 2px solid var(--amber-dim); padding-left: 8px; margin-top: auto; }
+
+  .flywheel { display: flex; flex-wrap: wrap; align-items: stretch; gap: 8px; margin-top: 16px; }
+  /* min-width:0 par précaution, pas par correction : un item flex refuse par
+     défaut de descendre sous la largeur de son contenu, et un maillon de la
+     boucle au texte long ferait déborder la rangée. Rien ne débordait au
+     moment où c'est écrit — c'est la sixième étape ajoutée qui le ferait. */
+  .fly { flex: 1 1 180px; min-width: 0; border: 1px solid var(--line-800); border-radius: 6px; background: var(--panel-deep); padding: 10px 12px; }
+  .fly__n { font-size: 9.5px; font-weight: 700; color: var(--violet); letter-spacing: .12em; }
+  .fly__t { font-size: 11.5px; color: var(--zinc-200); margin-top: 3px; }
+
+  .moat { margin-top: 16px; border-left: 2px solid var(--violet); padding: 4px 0 4px 12px; font-size: 12px; color: var(--zinc-200); max-width: 92ch; }
+  .moat b { color: var(--violet); }
+
+  /* ---- proof ------------------------------------------------------ */
+  /* Le panneau qui répond à « est-ce que ça vaut encore le coup ». Il ne
+     range pas les affirmations par importance mais par ce qui les tient :
+     une thèse qu'on ne peut pas trier comme ça est une thèse qu'on n'a pas
+     encore regardée en face. */
+  .proofs { display: flex; flex-direction: column; gap: 1px; background: var(--line-800); border: 1px solid var(--line-800); border-radius: 6px; overflow: hidden; }
+  .proof { background: var(--panel-deep); padding: 11px 14px; display: grid; grid-template-columns: 122px 1fr; gap: 14px; align-items: start; }
+  @media (max-width: 720px) { .proof { grid-template-columns: 1fr; gap: 6px; } }
+  /* Le libellé de l'état intermédiaire tient en deux lignes et c'est voulu :
+     « le sens, pas l'ampleur » dit quelque chose qu'aucun mot unique ne dit, et
+     le raccourcir le ramènerait à un « prouvé » timide — ce qu'il n'est pas. */
+  .proof__state {
+    font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em;
+    border: 1px solid currentColor; border-radius: 4px; padding: 2px 5px; text-align: center;
+    line-height: 1.3; display: block;
+  }
+  .proof__tally .proof__state { display: inline-block; }
+  .proof__state[data-s="proven"] { color: var(--emerald); }
+  .proof__state[data-s="directional"] { color: var(--amber); }
+  .proof__state[data-s="unproven"] { color: var(--rose); }
+  .proof__claim { font-size: 12px; color: var(--zinc-100); font-weight: 600; }
+  .proof__note { font-size: 11px; color: var(--zinc-400); margin-top: 3px; }
+  .proof__tally { display: flex; gap: 16px; font-size: 10.5px; color: var(--zinc-400); margin: 0 0 10px; flex-wrap: wrap; }
+  .proof__tally b { font-variant-numeric: tabular-nums; }
+
+  footer { padding: 0 24px 40px; color: var(--zinc-600); font-size: 10.5px; max-width: 1400px; margin: 0 auto; }
+</style>
+
+<header>
+  <div class="brand">
+    <span class="dot"></span>
+    <h1 id="epic">NextBillsMustBePaid</h1>
+  </div>
+  <div class="hstats">
+    <span class="links" id="links"></span>
+    <span id="updated" class="k">—</span>
+  </div>
+</header>
+
+<main>
+
+  <section class="thesis">
+    <div class="shead">
+      <h2>Ce qu'on fait</h2>
+      <span class="note">et le chiffre qui dit si ça marche</span>
+    </div>
+    <p class="rule" id="goal"></p>
+    <p class="lede" id="narrative"></p>
+    <div class="kpis" id="kpis"></div>
+  </section>
+
+  <section class="vision" id="vision-section" hidden>
+    <div class="shead">
+      <h2>Où ça va</h2>
+      <span class="note">un seul actif, plusieurs surfaces — chacune avec sa réserve</span>
+    </div>
+    <p class="thesis-line" id="vision-thesis"></p>
+    <p class="lede" id="vision-wedge"></p>
+    <div class="surfaces" id="vision-surfaces"></div>
+    <div class="flywheel" id="vision-flywheel"></div>
+    <p class="moat" id="vision-moat"></p>
+  </section>
+
+  <section id="proof-section" hidden>
+    <div class="shead">
+      <h2>Ce qui tient, et ce qui ne tient pas encore</h2>
+      <span class="note">chaque affirmation, avec ce qui la porte — ou ce qui lui manque</span>
+    </div>
+    <p class="proof__tally" id="proof-tally"></p>
+    <div class="proofs" id="proof-list"></div>
+  </section>
+
+  <section>
+    <div class="shead">
+      <h2>Feuille de route</h2>
+      <span class="note">un sprint par ligne · la position dit quand, le remplissage dit où on en est</span>
+    </div>
+    <div class="scroller" id="gantt"></div>
+    <div class="legend" id="gantt-legend"></div>
+  </section>
+
+  <div class="split">
+    <section>
+      <div class="shead">
+        <h2>Journal</h2>
+        <span class="note">ce qui a été trouvé, et par quoi</span>
+      </div>
+      <div id="journal"></div>
+    </section>
+
+    <div style="display:flex;flex-direction:column;gap:20px">
+      <section>
+        <div class="shead"><h2>Avancement</h2></div>
+        <p class="lede" id="focus"></p>
+        <div class="scroller" id="burnup"></div>
+      </section>
+      <section>
+        <div class="shead"><h2>La suite</h2></div>
+        <ul class="plain" id="next"></ul>
+      </section>
+    </div>
+  </div>
+
+  <section>
+    <div class="shead">
+      <h2>Carte système</h2>
+      <span class="note">les briques, et ce qu'elles prennent au cœur</span>
+      <span class="note" style="margin-left:auto"><span id="stack">—</span></span>
+    </div>
+    <p class="lede" id="system-summary"></p>
+    <div id="system"></div>
+    <div class="edges" id="edges"></div>
+  </section>
+
+  <section>
+    <div class="shead">
+      <h2>Réserve</h2>
+      <span class="note">pas planifié, pas oublié</span>
+    </div>
+    <ul class="plain" id="backlog"></ul>
+  </section>
+
+</main>
+
+<footer>
+  Piloté par <code>roadmap.json</code>, <code>changelog.json</code>, <code>system.json</code> et <code>vision.json</code>.
+  Servi par <code>.\ops\dashboard.ps1</code> — un double-clic sur ce fichier donne une page vide, le navigateur refuse un <code>fetch</code> en <code>file://</code>.
+</footer>
+
+<script src="app.js"></script>

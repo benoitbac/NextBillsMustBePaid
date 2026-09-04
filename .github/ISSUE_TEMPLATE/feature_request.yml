@@ -1,0 +1,24 @@
+name: ✨ Feature request
+description: Proposer une idée pour ce projet
+title: '[Feature]: '
+labels: ['enhancement']
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problème / motivation
+      description: Quel problème ça résout ? Pourquoi c'est utile ?
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Solution proposée
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives envisagées
+    validations:
+      required: false

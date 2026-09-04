@@ -1,0 +1,55 @@
+# Dependencies
+node_modules/
+.pnp/
+.pnp.*
+vendor/
+.venv/
+__pycache__/
+
+# Build output
+dist/
+build/
+out/
+.next/
+.nuxt/
+.svelte-kit/
+.cache/
+*.tsbuildinfo
+target/            # Rust
+bin/               # .NET
+obj/               # .NET
+
+# Environment & secrets
+.env
+.env.*
+!.env.example
+*.local
+secrets.*
+*.pem
+*.key
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-*.log*
+pnpm-debug.log*
+
+# Sorties de mesure regenerables (le .txt et le .json de reference, eux,
+# sont versionnes : ils datent l'equilibrage qu'on annonce)
+*.sim.json
+
+# Coverage & tests
+coverage/
+.nyc_output/
+.pytest_cache/
+
+# Editor & OS
+.DS_Store
+Thumbs.db
+.idea/
+*.swp
+# .vscode is kept partially — see .gitignore rules below
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json

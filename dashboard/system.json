@@ -1,0 +1,92 @@
+{
+  "summary": "Un noyau de simulation pur et déterministe, et trois surfaces qui le consomment sans jamais l'altérer : le jeu, les tests, les campagnes de mesure.",
+  "stack": "TypeScript strict · Vite 7 · three.js · vitest · tsx",
+
+  "layers": [
+    {
+      "name": "Noyau",
+      "desc": "la règle du jeu, sans DOM, sans three, sans Math.random",
+      "bricks": [
+        {
+          "title": "sim",
+          "path": "src/core/sim.ts",
+          "role": "La machine à états : step(state, dt, inputs) -> events. Résout un coup, fait apparaître les tirelires, échoit les factures, déclenche les saisies, ferme la run. Rien d'autre n'a le droit d'écrire dans l'état.",
+          "ports": ["pur"]
+        },
+        {
+          "title": "balance",
+          "path": "src/core/balance.ts",
+          "role": "Toutes les constantes d'équilibrage, et le seul endroit où elles existent. Une constante dispersée dans la logique est une constante qu'on ne retrouve pas quand la mesure dit qu'elle est fausse.",
+          "ports": ["données"]
+        },
+        {
+          "title": "rng",
+          "path": "src/core/rng.ts",
+          "role": "PRNG sfc32 sérialisé dans l'état de run. Choisi contre Math.random (ni rejeu ni test) et contre mulberry32 (période trop courte pour 10⁷ tirages).",
+          "ports": ["pur"]
+        },
+        {
+          "title": "bot",
+          "path": "src/core/bot.ts",
+          "role": "Trois politiques de frappe — tap, charge, adaptative — pour vérifier qu'aucune ne domine. Si l'une gagnait partout, le choix à chaque coup serait décoratif.",
+          "ports": ["mesure"]
+        }
+      ]
+    },
+    {
+      "name": "Jeu",
+      "desc": "consomme l'état et les événements, n'écrit jamais dedans",
+      "bricks": [
+        {
+          "title": "main",
+          "path": "src/game/main.ts",
+          "role": "Boucle à pas fixe avec accumulateur, entrées pointeur et clavier, méta persisté en localStorage, garde-fou contre la spirale de la mort après un onglet en arrière-plan.",
+          "ports": ["navigateur"]
+        },
+        {
+          "title": "view",
+          "path": "src/game/view.ts",
+          "role": "Scène three.js : tirelires assemblées par type, éclats en pool fixe, anneau de charge, recul caméra. Le pointage teste les maillages avant de retomber sur le sol — le corps est dessiné 0,6 unité au-dessus de sa position de simulation.",
+          "ports": ["webgl"]
+        },
+        {
+          "title": "hud",
+          "path": "src/game/hud.ts",
+          "role": "Jauge de main avec sa part définitivement saisie, échéancier cliquable à trois échéances, chips de perks, rendement de faillite affiché en continu, écrans de départ, de tirage et de fin.",
+          "ports": ["dom"]
+        }
+      ]
+    },
+    {
+      "name": "Mesure",
+      "desc": "ce qui autorise à affirmer quelque chose sur l'équilibrage",
+      "bricks": [
+        {
+          "title": "sim (cli)",
+          "path": "tools/sim.ts",
+          "role": "Campagnes headless : 3 politiques × 4 marteaux, médianes et déciles, répartition des fins de run, et un balayage de l'arbitrage temps/main. Sortie JSON pour comparer deux équilibrages.",
+          "ports": ["node"]
+        },
+        {
+          "title": "tests",
+          "path": "tests/sim.test.ts",
+          "role": "17 tests dont deux contrôles négatifs : la simulation doit diverger quand la visée change, et aucun marteau ne doit gagner sur les deux axes du compromis à la fois.",
+          "ports": ["vitest"]
+        }
+      ]
+    }
+  ],
+
+  "edges": [
+    { "from": "sim", "to": "balance", "label": "lit toutes ses constantes" },
+    { "from": "sim", "to": "rng", "label": "tire, et sérialise son état" },
+    { "from": "bot", "to": "sim", "label": "produit des entrées, ne modifie rien" },
+    { "from": "main", "to": "sim", "label": "step à pas fixe 1/120" },
+    { "from": "main", "to": "view", "label": "état + événements par image" },
+    { "from": "main", "to": "hud", "label": "état + événements par image" },
+    { "from": "view", "to": "main", "label": "pointage écran → coordonnée de simulation" },
+    { "from": "sim (cli)", "to": "bot", "label": "joue les trois politiques" },
+    { "from": "tests", "to": "sim", "label": "déterminisme, terrain, factures, legacy" },
+    { "from": "tests", "to": "balance", "label": "tient les chiffres annoncés du compromis" }
+  ]
+}

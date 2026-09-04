@@ -38,6 +38,7 @@ export class Hud {
   private readonly floats = el('div')
 
   private billNodes = new Map<number, { root: HTMLElement; bar: HTMLElement; amount: HTMLElement }>()
+  private perkSignature = ''
 
   private readonly h: HudHandlers
 
@@ -98,7 +99,11 @@ export class Hud {
 
     const counts = new Map<string, number>()
     for (const id of s.perks) counts.set(id, (counts.get(id) ?? 0) + 1)
-    if (this.perkStrip.childElementCount !== counts.size) {
+    // Comparer la signature et non le nombre de chips : un perk pris deux
+    // fois laisse le compte inchange, et le « x2 » ne s'affichait jamais.
+    const signature = [...counts].map(([id, n]) => `${id}:${n}`).join(',')
+    if (signature !== this.perkSignature) {
+      this.perkSignature = signature
       this.perkStrip.replaceChildren()
       for (const [id, n] of counts) {
         const spec = perk(id)
@@ -140,8 +145,9 @@ export class Hud {
         this.billNodes.set(bill.id, node)
       }
       const left = bill.dueAt - s.t
-      const window = 24
-      node.bar.style.width = `${Math.max(0, Math.min(100, (left / window) * 100))}%`
+      // Fenetre d'affichage : au-dela, la barre reste pleine.
+      const span = 24
+      node.bar.style.width = `${Math.max(0, Math.min(100, (left / span) * 100))}%`
       node.root.classList.toggle('urgent', left < 6)
       node.root.classList.toggle('soon', left >= 6 && left < 13)
       node.root.classList.toggle('payable', s.cash >= bill.amount)

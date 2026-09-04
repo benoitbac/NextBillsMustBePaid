@@ -242,6 +242,13 @@ canvas {
   font-size: 10px;
   letter-spacing: 0.08em;
   color: var(--cash);
+  /* Ne promettre le clic que quand il est possible : une invite qui ne
+     marche pas est pire qu'une absence d'invite. */
+  display: none;
+}
+
+.bill.payable .bill-hint {
+  display: block;
 }
 
 /* ---- bas : marteau, perks, banqueroute ---- */

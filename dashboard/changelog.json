@@ -46,7 +46,7 @@
         {
           "tag": "T1.3",
           "status": "done",
-          "text": "Compromis final calibré : dégâts ×(1+4c), coût ×(1+3,2c), soit +19 % par point de main contre −17 % au débit. Mesuré sur 3 600 runs : le tap gagne sur le marteau de poche, la charge sur le ciseau et la masse, la batte est un pile ou face. Aucune politique ne domine."
+          "text": "Compromis final calibré : dégâts ×(1+4c), coût ×(1+3,2c), soit +19 % par point de main contre −17 % au débit. Mesuré sur 3 600 runs : le tap gagne sur le marteau de poche (+195 %) et sur la batte (+33 %), la charge sur le ciseau (−51 %) et sur la masse (−56 %). Deux marteaux d'un côté, deux de l'autre — aucune politique fixe ne domine."
         },
         {
           "tag": "T1.10",
@@ -66,7 +66,7 @@
         {
           "tag": "T1.11",
           "status": "todo",
-          "text": "Reste ouvert et non arrondi : les quatre marteaux ne sont pas équilibrés entre eux (facteur ~2 de legacy médian), le bot adaptatif ne bat pas les politiques fixes parce qu'il est glouton coup par coup, et l'épuisement de la main ne termine presque jamais une run jouée correctement."
+          "text": "Reste ouvert et non arrondi : les quatre marteaux ne sont pas équilibrés entre eux (masse + charge à 79 de legacy médian contre 31 pour ciseau + tap, soit un facteur 2,5), le bot adaptatif ne bat pas les politiques fixes parce qu'il est glouton coup par coup, et l'épuisement de la main ne termine presque jamais une run jouée correctement."
         }
       ]
     }

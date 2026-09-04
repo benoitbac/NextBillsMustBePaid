@@ -1,5 +1,8 @@
 'use strict';
 
+// La logique du cockpit. Identique dans les 18 dépôts — source unique dans
+// 0-AllMyPersoRepo/cockpit/. NE PAS ÉDITER dans un dépôt.
+
 const $ = (id) => document.getElementById(id);
 const esc = (s) =>
   String(s ?? '').replace(
@@ -7,28 +10,23 @@ const esc = (s) =>
     (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c],
   );
 
-// Les statuts de tâche ne sont plus dessinés comme des barres dans le Gantt :
-// ils sont agrégés en un taux de remplissage par sprint. La table de couleurs
-// qui vivait ici n'avait donc plus d'utilisateur — et une table de couleurs
-// inutilisée est une invitation à redessiner l'ancienne image.
-
 const MONTHS = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
 const dayLabel = (ms) => {
   const d = new Date(ms);
   return `${d.getDate()} ${MONTHS[d.getMonth()]}`;
 };
 
+const grab = (name) =>
+  fetch(name, { cache: 'no-store' }).then((r) => (r.ok ? r.json() : null)).catch(() => null);
+
 // ---------------------------------------------------------------------
 // Gantt SVG fait main — pas de librairie de graphes dans ce dépôt.
 //
-// Une ligne PAR SPRINT, pas par tâche. Quarante-cinq barres de six pixels
-// avec une graduation quotidienne, c'est une image qu'on ne lit pas : on la
-// regarde, on constate qu'elle est dense, et on passe. Le détail des tâches
-// vit dans le journal et dans « la suite », où il se lit vraiment.
-//
-// Chaque barre porte donc deux informations et pas une : sa POSITION dit
-// quand, son REMPLISSAGE dit où on en est. Le compte est écrit en clair au
-// bout, parce qu'une proportion se compare mal à l'œil d'une ligne à l'autre.
+// Une ligne PAR SPRINT, pas par tâche. Quarante-cinq barres de six pixels avec
+// une graduation quotidienne, c'est une image qu'on ne lit pas. Chaque barre
+// porte donc deux informations : sa POSITION dit quand, son REMPLISSAGE dit où
+// on en est. Le compte est écrit en clair au bout, parce qu'une proportion se
+// compare mal à l'œil d'une ligne à l'autre.
 // ---------------------------------------------------------------------
 function renderGantt(roadmap) {
   const sprints = (roadmap.sprints ?? [])
@@ -38,8 +36,8 @@ function renderGantt(roadmap) {
   if (!sprints.length) return '<p class="lede">Aucun sprint daté.</p>';
 
   const day = 86400000;
-  let tMin = Math.min(...sprints.map((s) => s.a)) - day * 2;
-  let tMax = Math.max(...sprints.map((s) => s.b)) + day * 2;
+  const tMin = Math.min(...sprints.map((s) => s.a)) - day * 2;
+  const tMax = Math.max(...sprints.map((s) => s.b)) + day * 2;
 
   const W = 1000;
   const leftLabel = 268;
@@ -164,11 +162,8 @@ function renderBurnup(changelog) {
 }
 
 // ---------------------------------------------------------------------
-// Rendu des sections déclaratives
-// ---------------------------------------------------------------------
-// ---------------------------------------------------------------------
-// Vision — où ça va, et pourquoi c'est gros. Optionnel : un projet sans
-// vision.json garde le cockpit d'avant, le panneau reste simplement caché.
+// Vision — où ça va, et pourquoi c'est gros. Optionnel : sans vision.json le
+// panneau reste caché plutôt que de s'afficher vide.
 //
 // Chaque surface porte une réserve, et ce n'est pas de la modestie : une
 // ambition dont on ne sait pas nommer le point faible est une ambition que
@@ -248,28 +243,164 @@ function renderProof(proof) {
     .join('');
 }
 
+// ---------------------------------------------------------------------
+// Mesures — le panneau venu de NextQR, rendu générique.
+//
+// Générique veut dire : le JSON décrit ses propres colonnes. Un banc de
+// décodage QR et un relevé d'allocations n'ont pas les mêmes, et coder l'une
+// des deux formes en dur revenait à interdire l'autre.
+// ---------------------------------------------------------------------
+function renderBench(bench) {
+  if (!bench) return;
+  $('bench-section').hidden = false;
+  $('bench-note').textContent = bench.note ?? '';
+  $('bench-updated').textContent = bench.updated ? `relevé du ${bench.updated}` : '';
+
+  $('bench-summary').innerHTML = (bench.summary ?? [])
+    .map(
+      (s) => `<div class="kpi">
+        <div class="kpi__v" data-s="${esc(s.state ?? 'good')}">${esc(s.value)}</div>
+        <div class="kpi__l">${esc(s.label)}</div>
+        ${s.note ? `<div class="kpi__n">${esc(s.note)}</div>` : ''}
+      </div>`,
+    )
+    .join('');
+
+  const cols = bench.columns ?? [];
+  const rows = bench.rows ?? [];
+  $('bench-table').innerHTML = !cols.length
+    ? ''
+    : `<thead><tr>${cols.map((c) => `<th>${esc(c.t)}</th>`).join('')}</tr></thead>`
+      + `<tbody>${rows
+        .map(
+          (r) =>
+            `<tr>${cols
+              .map((c) => {
+                const v = r[c.k];
+                const cls = c.num ? ' class="num"' : '';
+                const st = r[`${c.k}_s`] ? ` data-s="${esc(r[`${c.k}_s`])}"` : '';
+                return `<td${cls}${st}>${esc(v ?? '')}</td>`;
+              })
+              .join('')}</tr>`,
+        )
+        .join('')}</tbody>`;
+}
+
+// ---------------------------------------------------------------------
+// Comment tester — repris de NextQR, où il était écrit en dur dans le HTML.
+// En données, il devient le même panneau pour tous les projets.
+// ---------------------------------------------------------------------
+function renderTest(test) {
+  if (!test || !(test.steps ?? []).length) return;
+  $('test-section').hidden = false;
+  $('test-steps').innerHTML = test.steps
+    .map(
+      (s, i) => `<div>
+        <span class="step">${esc(s.step ?? String(i + 1))}</span>
+        <h3>${esc(s.title ?? '')}</h3>
+        <p>${esc(s.text ?? '')}</p>
+        ${(s.commands ?? []).length ? `<code>${(s.commands ?? []).map(esc).join('\n')}</code>` : ''}
+      </div>`,
+    )
+    .join('');
+}
+
+// ---------------------------------------------------------------------
+// Télémétrie — une tuile par série, la courbe en dessous.
+//
+// Un seul graphe à six courbes superposées serait plus compact et illisible :
+// ces séries n'ont ni la même unité ni la même échelle. Et la variation affichée
+// est celle depuis le PREMIER point de la fenêtre, pas depuis la veille — un
+// delta quotidien sur un projet qu'on touche deux fois par semaine ne mesure
+// que le hasard du jour où on regarde.
+// ---------------------------------------------------------------------
+function sparkline(values, better) {
+  if (values.length < 2) return '';
+  const W = 168, H = 34, pad = 3;
+  const min = Math.min(...values), max = Math.max(...values);
+  const span = max - min || 1;
+  const px = (i) => pad + (i / (values.length - 1)) * (W - pad * 2);
+  const py = (v) => H - pad - ((v - min) / span) * (H - pad * 2);
+  const pts = values.map((v, i) => `${px(i).toFixed(1)},${py(v).toFixed(1)}`).join(' ');
+  const colour = better === 'flat' ? '#71717a' : better === 'down' ? '#fb7185' : '#34d399';
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}" preserveAspectRatio="none" role="img" aria-hidden="true">`
+    + `<polygon points="${pad},${H - pad} ${pts} ${px(values.length - 1).toFixed(1)},${H - pad}" fill="${colour}" fill-opacity="0.12"/>`
+    + `<polyline points="${pts}" fill="none" stroke="${colour}" stroke-width="1.6"/>`
+    + `<circle cx="${px(values.length - 1).toFixed(1)}" cy="${py(values[values.length - 1]).toFixed(1)}" r="2.4" fill="${colour}"/>`
+    + '</svg>';
+}
+
+function renderTelemetry(tel) {
+  const points = tel?.points ?? [];
+  if (points.length < 1) return;
+  $('telemetry-section').hidden = false;
+  $('telemetry-span').textContent =
+    points.length === 1
+      ? `premier point le ${points[0].date} — la courbe arrive demain`
+      : `${points.length} points, du ${points[0].date} au ${points[points.length - 1].date}`;
+
+  $('telemetry').innerHTML = (tel.series ?? [])
+    .map((s) => {
+      const values = points.map((p) => p[s.k]).filter((v) => typeof v === 'number');
+      if (!values.length) return '';
+      const last = values[values.length - 1];
+      const delta = last - values[0];
+      // Une série « moins c'est mieux » inverse le sens de la couleur, pas du signe.
+      const dir = delta === 0 ? 'flat' : (s.lowerIsBetter ? (delta < 0 ? 'up' : 'down') : (delta > 0 ? 'up' : 'down'));
+      return `<div class="spark">
+        <div class="spark__top">
+          <span class="spark__v">${esc(last)}</span>
+          <span class="spark__d" data-s="${dir}">${delta > 0 ? '+' : ''}${values.length > 1 ? esc(delta) : '—'}</span>
+        </div>
+        <div class="spark__l">${esc(s.t ?? s.k)}</div>
+        ${s.why ? `<div class="spark__w">${esc(s.why)}</div>` : ''}
+        ${sparkline(values, dir)}
+      </div>`;
+    })
+    .join('');
+}
+
+// ---------------------------------------------------------------------
+// Le rail de liens. Les deux pages sœurs y entrent toutes seules quand leur
+// fichier existe : les câbler à la main dans dix-huit roadmap.json, c'est
+// dix-huit occasions d'en oublier une.
+// ---------------------------------------------------------------------
+function renderLinks(roadmap, has) {
+  const auto = [];
+  if (has.marche) {
+    auto.push({ url: 'marche.html', label: 'Le marché', inside: true,
+                note: 'qui existe déjà en face, et quelle case reste vide' });
+  }
+  auto.push({ url: 'etat.html', label: 'Où on en est', inside: true,
+              note: 'les faits mesurés du dépôt — page générée, jamais écrite à la main' });
+
+  const given = (roadmap?.links ?? []).filter((l) => !/^(marche|etat)\.html$/.test(l.url));
+  $('links').innerHTML = [...auto, ...given]
+    .map(
+      (l) =>
+        `<a href="${esc(l.url)}"${l.inside ? ' data-in' : ' target="_blank" rel="noopener noreferrer"'} title="${esc(l.note ?? l.url)}">${esc(l.label)}</a>`,
+    )
+    .join('');
+}
+
 async function load() {
-  const [roadmap, changelog, system, vision] = await Promise.all(
-    ['roadmap.json', 'changelog.json', 'system.json', 'vision.json'].map((u) =>
-      fetch(u, { cache: 'no-store' }).then((r) => (r.ok ? r.json() : null)).catch(() => null),
-    ),
+  const [roadmap, changelog, system, vision, bench, test, marche, telemetry] = await Promise.all(
+    ['roadmap.json', 'changelog.json', 'system.json', 'vision.json',
+     'bench.json', 'test.json', 'marche.json', 'telemetry.json'].map(grab),
   );
 
   renderVision(vision);
+  renderBench(bench);
+  renderTest(test);
+  renderTelemetry(telemetry);
+  renderLinks(roadmap, { marche: !!marche });
 
   if (roadmap) {
     $('epic').textContent = roadmap.epic ?? '';
+    document.title = `${roadmap.epic ?? 'projet'} — cockpit`;
     $('goal').textContent = roadmap.goal ?? '';
     $('updated').textContent = `mis à jour ${roadmap.updated ?? '—'}`;
 
-    // `rel="noopener"` sur une cible externe : sans lui, la page ouverte garde
-    // une poignée sur celle-ci via window.opener.
-    $('links').innerHTML = (roadmap.links ?? [])
-      .map(
-        (l) =>
-          `<a href="${esc(l.url)}" target="_blank" rel="noopener noreferrer" title="${esc(l.note ?? l.url)}">${esc(l.label)}</a>`,
-      )
-      .join('');
     $('gantt').innerHTML = renderGantt(roadmap);
     // La légende décrit ce que la figure encode, pas la liste des statuts
     // possibles : les tâches ne sont plus des barres, donc annoncer quatre
@@ -304,7 +435,7 @@ async function load() {
     $('backlog').innerHTML = (roadmap.backlog ?? [])
       .map(
         (b) =>
-          `<li><b style="color:var(--zinc-100)">${esc(b.title)}</b><br><span style="color:var(--zinc-400)">${esc(b.note ?? '')}</span></li>`,
+          `<li><b>${esc(b.title)}</b><br><span style="color:var(--zinc-400)">${esc(b.note ?? '')}</span></li>`,
       )
       .join('');
   }
@@ -363,7 +494,7 @@ async function load() {
     $('edges').innerHTML = (system.edges ?? [])
       .map(
         (e) =>
-          `<div><b style="color:var(--zinc-100)">${esc(e.from)}</b> <span class="arrow">→</span> <b style="color:var(--zinc-100)">${esc(e.to)}</b> <span style="color:var(--zinc-400)">${esc(e.label ?? '')}</span></div>`,
+          `<div><b>${esc(e.from)}</b> <span class="arrow">→</span> <b>${esc(e.to)}</b> <span style="color:var(--zinc-400)">${esc(e.label ?? '')}</span></div>`,
       )
       .join('');
   }

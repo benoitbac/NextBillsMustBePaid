@@ -49,7 +49,7 @@
     {
       "claim": "Aucune politique de frappe ne domine : le bon coup dépend du marteau et de la situation.",
       "state": "proven",
-      "note": "Campagne de 3 600 runs, médianes : le tap gagne sur le marteau de poche, la charge sur le ciseau et la masse, la batte est un pile ou face. Contrôle négatif dans tests/sim.test.ts : le test échoue si un marteau gagne sur les deux axes du compromis — il a effectivement fait échouer la masse et la batte."
+      "note": "Campagne de 3 600 runs, legacy médian : le tap gagne sur le marteau de poche (+195 %) et sur la batte (+33 %), la charge sur le ciseau (−51 %) et sur la masse (−56 %). Deux d'un côté, deux de l'autre. Contrôle négatif dans tests/sim.test.ts : le test échoue si un marteau gagne sur les deux axes du compromis — il a effectivement fait échouer la masse et la batte."
     },
     {
       "claim": "La simulation est déterministe et rejouable à partir de (graine, entrées).",

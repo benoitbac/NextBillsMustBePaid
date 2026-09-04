@@ -104,9 +104,10 @@ concurrence avec les factures, ce qui punit deux fois le même mauvais tour.
 Écrit ici au même niveau de détail que le reste, parce qu'un document qui ne nomme que ses
 réussites ne mérite pas d'être cru sur elles.
 
-- **Les quatre marteaux ne sont pas équilibrés entre eux.** L'écart de legacy médian entre le
-  meilleur et le pire couple (marteau, politique) reste d'un facteur ~2. Le compromis interne
-  à chaque marteau tient ; la parité entre marteaux, non.
+- **Les quatre marteaux ne sont pas équilibrés entre eux.** Le legacy médian du meilleur couple
+  (masse + charge, 79) vaut 2,5 fois celui du pire (ciseau + tap, 31). Le compromis interne à
+  chaque marteau tient ; la parité entre marteaux, non — choisir la masse reste objectivement
+  meilleur que choisir le ciseau.
 - **Le bot adaptatif ne bat pas les politiques fixes.** Il est glouton coup par coup ; il ne
   planifie ni la fenêtre d'une facture ni la fuite d'un jackpot. C'est une ligne de base, pas
   un plafond de compétence — et donc il ne prouve rien sur ce qu'un humain peut atteindre.
@@ -125,8 +126,10 @@ raison d'être est de pouvoir **infirmer** la thèse : si une politique fixe gag
 choix à chaque coup serait décoratif et le jeu n'aurait pas d'intérêt.
 
 C'est déjà arrivé quatre fois pendant la conception, et chaque fois l'équilibrage a bougé,
-pas l'affirmation. Les mesures courantes sont dans [`balance-baseline.txt`](balance-baseline.txt),
-régénérées à chaque changement d'équilibrage.
+pas l'affirmation. Campagne courante, 3 600 runs, legacy médian : le tap gagne sur le marteau
+de poche (+195 %) et sur la batte (+33 %), la charge sur le ciseau (−51 %) et sur la masse
+(−56 %). Deux marteaux d'un côté, deux de l'autre — aucune politique fixe ne domine. Les mesures sont
+dans [`balance-baseline.txt`](balance-baseline.txt), régénérées à chaque changement d'équilibrage.
 
 Un point de méthode qui a compté : la distribution du legacy est **à queue lourde** (p90 vaut
 20 à 30 fois p10). Les premières campagnes comparaient des moyennes sur 60 runs — elles ne

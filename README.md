@@ -61,11 +61,16 @@ Le cœur (`src/core/`) est une machine à états déterministe, sans DOM, sans `
 
 ```
 $ npm run sim -- --runs 300
-OVERDRAFT — campagne de 3600 runs simulees en 382.2s
+OVERDRAFT — campagne de 3600 runs simulees en 409.5s
 ...
 Marteau de poche       meilleure: tap        tap vs charge: +195%
-Ciseau de precision    meilleure: charge     tap vs charge: -51%
+Ciseau de precision    meilleure: charge     tap vs charge:  -51%
+Masse de chantier      meilleure: charge     tap vs charge:  -56%
+Batte cloutee          meilleure: tap        tap vs charge:  +33%
 ```
+
+Deux marteaux d'un côté, deux de l'autre : **aucune politique fixe ne domine**, ce qui est
+exactement la propriété que le design revendique.
 
 L'outil existe pour pouvoir **infirmer** le design : si une politique de frappe gagnait
 partout, le choix à chaque coup serait décoratif. C'est arrivé quatre fois pendant la

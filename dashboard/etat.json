@@ -1,0 +1,142 @@
+{
+  "repo": "NextBillsMustBePaid",
+  "generated": "2026-09-04 06:20",
+  "staleDays": 0,
+  "facts": [
+    {
+      "label": "commits",
+      "value": "3",
+      "state": "good",
+      "source": "git rev-list --count --all"
+    },
+    {
+      "label": "dernier commit",
+      "value": "2026-09-04",
+      "state": "good",
+      "source": "git log -1"
+    },
+    {
+      "label": "non commité",
+      "value": "5",
+      "state": "warn",
+      "source": "git status --porcelain"
+    },
+    {
+      "label": "signature",
+      "value": "conforme",
+      "state": "good",
+      "source": "git log --all --pretty=%an"
+    },
+    {
+      "label": "CI",
+      "value": "se déclenche automatiquement",
+      "state": "good",
+      "source": ".github/workflows/*.yml"
+    },
+    {
+      "label": "gate local",
+      "value": "absent",
+      "state": "bad",
+      "source": "ops/gate.ps1"
+    },
+    {
+      "label": "tâches faites",
+      "value": "10/19",
+      "state": "warn",
+      "source": "dashboard/roadmap.json"
+    }
+  ],
+  "groups": [
+    {
+      "h": "Le dépôt",
+      "note": "ce que git répond, maintenant",
+      "rows": [
+        {
+          "k": "branche courante",
+          "v": "main",
+          "src": "git branch --show-current"
+        },
+        {
+          "k": "commits, toutes branches",
+          "v": "3",
+          "src": "git rev-list --count --all"
+        },
+        {
+          "k": "premier commit",
+          "v": "2026-09-04",
+          "src": "git log --reverse -1"
+        },
+        {
+          "k": "fichiers modifiés non commités",
+          "v": "5",
+          "s": "warn",
+          "src": "git status --porcelain"
+        },
+        {
+          "k": "identités dans l'historique",
+          "v": "Benoit Bacot <bacotben@gmail.com>",
+          "s": "good",
+          "src": "git log --all --pretty='%an <%ae>'"
+        }
+      ]
+    },
+    {
+      "h": "Ce qui est en place",
+      "note": "présence de fichier, pas jugement de contenu",
+      "rows": [
+        {
+          "k": "README",
+          "v": "présent",
+          "s": "good",
+          "src": "test -f README.md"
+        },
+        {
+          "k": "LICENSE",
+          "v": "présent",
+          "s": "good",
+          "src": "test -f LICENSE"
+        },
+        {
+          "k": "CONTRIBUTING",
+          "v": "présent",
+          "s": "good",
+          "src": "test -f CONTRIBUTING.md"
+        },
+        {
+          "k": "SECURITY",
+          "v": "présent",
+          "s": "good",
+          "src": "test -f SECURITY.md"
+        },
+        {
+          "k": "CODE_OF_CONDUCT",
+          "v": "présent",
+          "s": "good",
+          "src": "test -f CODE_OF_CONDUCT.md"
+        },
+        {
+          "k": "CHANGELOG",
+          "v": "présent",
+          "s": "good",
+          "src": "test -f CHANGELOG.md"
+        },
+        {
+          "k": "CI",
+          "v": "se déclenche automatiquement",
+          "s": "good",
+          "src": "lecture du bloc on: des workflows"
+        },
+        {
+          "k": "gate local",
+          "v": "ops/gate.ps1 absent",
+          "s": "bad",
+          "src": "test -f ops/gate.ps1"
+        }
+      ]
+    }
+  ],
+  "gaps": [
+    "**Aucun test n'a été lancé pour produire cette page.** Elle relève des présences de fichiers, des états git et l'état des déclencheurs de CI. Elle ne dit pas si le code compile, si les tests passent, ni si le gate est vert — il faut le lancer pour ça.",
+    "**La présence n'est pas la qualité.** « README présent » ne veut pas dire qu'il est bon, « ADR présents » ne veut pas dire qu'ils décident quelque chose."
+  ]
+}

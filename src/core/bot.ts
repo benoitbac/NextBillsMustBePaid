@@ -30,18 +30,31 @@ export interface BotConfig {
 }
 
 /**
- * Combien de stamina vaut une seconde, marteau par marteau.
- * Ces valeurs ne sont pas choisies : elles sortent de `npm run sim -- --sweep`,
- * qui montre un optimum net et different pour chacun. Les refaire apres tout
- * changement d'equilibrage fait partie du changement.
+ * `timeWeight` : combien de stamina vaut une seconde de jeu.
+ *
+ * Une seule valeur pour les quatre marteaux, et c'est un choix, pas un oubli.
+ *
+ * `npm run sim -- --sweep` sur [0,5 ; 64], 120 runs par case, legacy median :
+ *
+ *   poche    32  28  33  32  44  47  48  59*   monte jusqu'au bord
+ *   ciseau   28  28  32  33* 33* 32  33* 33*   plat des w=2
+ *   masse    79  93* 79  89  79  72  72  68    decroit apres w=1
+ *   batte    33  33  33  33  33  40* 33  40*   bruit autour de 33
+ *
+ * Aucun marteau n'a d'optimum interieur net. Ce que le parametre fait vraiment,
+ * c'est choisir a quel point le bot ignore la stamina pour maximiser le debit —
+ * donc a quelle politique fixe il ressemble. Et la direction qui l'ameliore est
+ * a chaque fois celle qui gagne deja pour ce marteau : monter pour le poche (ou
+ * le tap gagne), descendre pour la masse (ou la charge gagne).
+ *
+ * Un tableau par marteau reglerait donc le bot avec la reponse que la campagne
+ * est censee produire — l'instrument mesurerait son propre reglage. On garde
+ * une valeur unique au milieu de la plage, et on assume que la ligne `adaptive`
+ * est une ligne de base faible plutot qu'un plafond de competence.
+ *
+ * A relancer le jour ou le bot planifiera (fenetre de facture, fuite d'un
+ * jackpot) : c'est la qu'un optimum interieur aurait une chance d'exister.
  */
-export const TIME_WEIGHT: Readonly<Record<string, number>> = {
-  poche: 8,
-  ciseau: 8,
-  masse: 4,
-  batte: 2,
-}
-
 export const DEFAULT_BOT: BotConfig = {
   policy: 'adaptive',
   timeWeight: 4,
@@ -85,8 +98,7 @@ function rate(
     value += Math.min(dmg, p.hp) * damageValue(p, mods)
     if (dmg >= p.hp) value += PIGGIES[p.kind].refund * mods.refund * 0.8
   }
-  const w = cfg.timeWeight ?? TIME_WEIGHT[s.hammerId] ?? 4
-  return value / (cost + w * duration)
+  return value / (cost + cfg.timeWeight * duration)
 }
 
 function bestPlan(s: RunState, cfg: BotConfig, mods = s.mods): Plan | null {

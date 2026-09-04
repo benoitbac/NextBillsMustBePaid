@@ -1,0 +1,40 @@
+
+> overdraft@0.1.0 sim
+> tsx tools/sim.ts --runs 300 --json docs/balance-baseline.json
+
+
+OVERDRAFT — campagne de 3600 runs simulees en 409.5s
+
+marteau   politique    median    p10    p90     moy   duree  factures  declare  saisie  epuise
+----------------------------------------------------------------------------------------------
+poche     tap              56     19    135      67  109.4s      10.2      66%     34%      0%
+poche     charge           19      8    196      78  211.4s      11.9      15%     85%      0%
+poche     adaptive         43     20    210      86  163.4s      12.3      46%     54%      0%
+ciseau    tap              31     17    103      47  217.1s      12.7      18%     82%      0%
+ciseau    charge           63     25    128      68  101.1s       9.4      98%      2%      0%
+ciseau    adaptive         32     19    116      51  220.9s      13.0      17%     83%      0%
+masse     tap              35     11     79      43   33.6s       6.5      95%      5%      0%
+masse     charge           79     10    196      99  108.3s      10.7      68%     31%      1%
+masse     adaptive         79     21    186      92   88.1s      10.4      78%     22%      1%
+batte     tap              44     17    145      63  122.0s      10.3      59%     41%      0%
+batte     charge           33      8    283     108  218.1s      13.5      22%     78%      0%
+batte     adaptive         33     19    224      83  210.8s      13.4      25%     75%      0%
+
+Marteau de poche       meilleure: tap        tap vs charge: +195%
+Ciseau de precision    meilleure: charge     tap vs charge: -51%
+Masse de chantier      meilleure: charge     tap vs charge: -56%
+Batte cloutee          meilleure: tap        tap vs charge: +33%
+
+-> docs/balance-baseline.json
+
+OVERDRAFT — balayage temps/stamina, 120 runs par case
+
+marteau       w=0.5      w=1      w=2      w=4      w=8     w=16     w=32     w=64
+----------------------------------------------------------------------------------
+poche           32       28       33       32       44       47       48       59*
+ciseau          28       28       32       33*      33*      32       33*      33*
+masse           79       93*      79       89       79       72       72       68 
+batte           33       33       33       33       33       40*      33       40*
+
+* optimum par marteau. Un optimum plat signalerait un arbitrage sans effet.
+

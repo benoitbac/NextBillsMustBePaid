@@ -9,7 +9,7 @@
  */
 import { writeFileSync } from 'node:fs'
 import { HAMMERS, TICK } from '../src/core/balance'
-import { DEFAULT_BOT, TIME_WEIGHT, botInputs, createBotMemory, type Policy } from '../src/core/bot'
+import { DEFAULT_BOT, botInputs, createBotMemory, type Policy } from '../src/core/bot'
 import { createRun, step, summarize } from '../src/core/sim'
 import type { RunSummary } from '../src/core/types'
 
@@ -26,7 +26,7 @@ interface Args {
 }
 
 /** Poids explores : combien de stamina vaut une seconde de jeu. */
-const SWEEP_WEIGHTS = [0.25, 0.5, 1, 2, 4, 8] as const
+const SWEEP_WEIGHTS = [0.5, 1, 2, 4, 8, 16, 32, 64] as const
 
 function parseArgs(argv: readonly string[]): Args {
   const a: Args = { runs: 400, seed: 1, json: null, policy: null, hammer: null, sweep: false }
@@ -46,7 +46,7 @@ function parseArgs(argv: readonly string[]): Args {
 function playOne(seed: number, hammerId: string, policy: Policy, timeWeight?: number): RunSummary {
   const s = createRun(seed, hammerId)
   const mem = createBotMemory()
-  const cfg = { ...DEFAULT_BOT, policy, timeWeight: timeWeight ?? TIME_WEIGHT[hammerId] ?? DEFAULT_BOT.timeWeight }
+  const cfg = { ...DEFAULT_BOT, policy, timeWeight: timeWeight ?? DEFAULT_BOT.timeWeight }
   const maxTicks = Math.ceil(MAX_SECONDS / TICK)
   for (let i = 0; i < maxTicks && s.over === null; i++) {
     step(s, TICK, botInputs(s, mem, cfg))
@@ -101,8 +101,9 @@ function fmt(x: number, d = 1): string {
 
 /**
  * Balayage de `timeWeight` : le taux de change entre une seconde et un point
- * de stamina. Le fixer au doigt mouille reviendrait a decider a la place du
- * joueur ; le balayer dit ou se trouve reellement l'optimum, marteau par marteau.
+ * de stamina. Il a repondu, et la reponse est negative — voir le commentaire
+ * de TIME_WEIGHT dans bot.ts. On le garde parce qu'un resultat negatif se
+ * re-verifie : le jour ou le bot planifiera, c'est ici qu'on le saura.
  */
 function sweep(args: Args): void {
   const hammers = args.hammer ? HAMMERS.filter((h) => h.id === args.hammer) : HAMMERS
@@ -124,7 +125,10 @@ function sweep(args: Args): void {
     )
   }
   console.log('')
-  console.log('* optimum par marteau. Un optimum plat signalerait un arbitrage sans effet.')
+  console.log('* optimum par marteau.')
+  console.log('  Une ligne plate signale un arbitrage sans effet.')
+  console.log("  Un optimum au bord de la plage signale que le score glouton n'a pas")
+  console.log('  d\'optimum interieur : il reproduit la politique fixe gagnante.')
   console.log('')
 }
 

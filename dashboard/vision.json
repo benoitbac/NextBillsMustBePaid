@@ -20,7 +20,7 @@
       "stateLabel": "opérationnel, et il mord",
       "claim": "npm run sim joue 3 600 parties sans rendu et compare trois politiques de frappe sur quatre marteaux. Il existe pour pouvoir infirmer le design.",
       "evidence": "Il a démoli quatre versions successives du compromis central, dont la sienne : les moyennes sur 60 runs ne mesuraient que la chance d'avoir croisé un jackpot.",
-      "reserve": "Le bot est glouton coup par coup : il ne planifie ni la fenêtre d'une facture ni la fuite d'un jackpot. Il donne une ligne de base, pas un plafond de compétence — il ne dit donc rien de la marge laissée à un humain."
+      "reserve": "Le bot est glouton coup par coup. Le balayage de son unique réglage sur [0,5 ; 64] ne trouve aucun optimum intérieur : le paramètre ne fait que choisir à quelle politique fixe le bot ressemble. C'est donc une ligne de base faible, pas un plafond de compétence — il ne dit rien de la marge laissée à un humain."
     },
     {
       "name": "Le méta entre les runs",

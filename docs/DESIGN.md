@@ -108,9 +108,15 @@ réussites ne mérite pas d'être cru sur elles.
   (masse + charge, 79) vaut 2,5 fois celui du pire (ciseau + tap, 31). Le compromis interne à
   chaque marteau tient ; la parité entre marteaux, non — choisir la masse reste objectivement
   meilleur que choisir le ciseau.
-- **Le bot adaptatif ne bat pas les politiques fixes.** Il est glouton coup par coup ; il ne
-  planifie ni la fenêtre d'une facture ni la fuite d'un jackpot. C'est une ligne de base, pas
-  un plafond de compétence — et donc il ne prouve rien sur ce qu'un humain peut atteindre.
+- **Le bot adaptatif ne bat pas les politiques fixes, et on sait maintenant pourquoi.** Son
+  seul réglage — combien de stamina vaut une seconde — a été balayé sur [0,5 ; 64], 120 runs
+  par case. Aucun marteau n'a d'optimum intérieur : la valeur ne fait que régler à quel point
+  le bot ignore la stamina, donc **à quelle politique fixe il ressemble**. Et la direction qui
+  l'améliore est chaque fois celle qui gagne déjà pour ce marteau — monter pour le poche
+  (32 → 59), descendre pour la masse (93 → 68). Un tableau par marteau réglerait donc le bot
+  avec la réponse que la campagne est censée produire. On garde une valeur unique et on assume
+  que `adaptive` est une ligne de base faible, pas un plafond de compétence : il ne dit rien de
+  ce qu'un humain peut atteindre.
 - **L'épuisement de la main ne termine presque jamais une run jouée correctement** (< 2 % des
   runs simulées) : un joueur averti déclare avant. La fantaisie « la main lâche » de l'original
   est donc ici une pression, pas une fin.

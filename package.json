@@ -14,7 +14,7 @@
     "sim": "tsx tools/sim.ts"
   },
   "devDependencies": {
-    "@types/node": "^26.4.1",
+    "@types/node": "^26.5.0",
     "@types/three": "^0.185.4",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3",
